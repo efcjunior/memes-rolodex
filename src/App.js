@@ -1,4 +1,6 @@
 import { Component } from "react";
+import CardList from "./components/card-list/card-list.component";
+import SearchBox from "./components/search-box/search-box.component";
 import "./App.css";
 
 class App extends Component {
@@ -7,7 +9,7 @@ class App extends Component {
 
     this.state = {
       memes: [],
-      searchField: '',
+      searchField: "",
     };
   }
 
@@ -21,36 +23,28 @@ class App extends Component {
       );
   }
 
-  prepareState(data, callback) {
-    this.setState(()=> {
-      return {memes: data}
-    },)
-  }
+  onSearchChange = (event) => {
+    const searchField = event.target.value.toLocaleLowerCase();
+
+    this.setState(() => {
+      return { searchField };
+    });
+  };
 
   render() {
-    const memesFiltered = this.state.memes.filter((meme) => {
-      return meme.name.toLocaleLowerCase().includes(this.state.searchField);
+    const { memes, searchField } = this.state;
+    const memesFiltered = memes.filter((meme) => {
+      return meme.name.toLocaleLowerCase().includes(searchField);
     });
 
     return (
-      <div className="App">
-        <input
-          onChange={(event) => {
-            const searchField = event.target.value.toLocaleLowerCase();
-
-            this.setState(() => {
-              return { searchField };
-            });
-          }}
+      <div className="App">    
+        <h1 className="app-title">Memes Rolodex</h1>
+        <SearchBox 
+          onChangeHandler={this.onSearchChange}          
           placeholder="search memes"
-        />
-        {memesFiltered.map((meme) => {
-          return (
-            <div key={meme.id}>
-              <h1>{meme.name}</h1>
-            </div>
-          );
-        })}
+          />
+        <CardList memesFiltered={memesFiltered} />
       </div>
     );
   }
