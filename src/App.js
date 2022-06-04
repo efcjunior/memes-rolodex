@@ -1,53 +1,42 @@
-import { Component } from "react";
 import CardList from "./components/card-list/card-list.component";
 import SearchBox from "./components/search-box/search-box.component";
 import "./App.css";
+import { useEffect, useState } from "react";
 
-class App extends Component {
-  constructor() {
-    super();
+const App = () => {
+  const [searchField, setSearchField] = useState("");
+  const [memes, setMemes] = useState([]);
+  const [filteredMemes, setFilteredMemes] = useState(memes);
 
-    this.state = {
-      memes: [],
-      searchField: "",
-    };
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     fetch("https://api.imgflip.com/get_memes")
       .then((response) => response.json())
-      .then((memes) =>
-        this.setState(() => {
-          return { memes: memes.data.memes };
-        })
-      );
-  }
+      .then((memes) => setMemes(memes.data.memes));
+  }, []);
 
-  onSearchChange = (event) => {
-    const searchField = event.target.value.toLocaleLowerCase();
-
-    this.setState(() => {
-      return { searchField };
-    });
-  };
-
-  render() {
-    const { memes, searchField } = this.state;
-    const memesFiltered = memes.filter((meme) => {
+  useEffect(() => {
+    const newFilteredMemes = memes.filter((meme) => {
       return meme.name.toLocaleLowerCase().includes(searchField);
     });
+    setFilteredMemes(newFilteredMemes);
+  }, [memes, searchField]);
 
-    return (
-      <div className="App">    
-        <h1 className="app-title">Memes Rolodex</h1>
-        <SearchBox 
-          onChangeHandler={this.onSearchChange}          
-          placeholder="search memes"
-          />
-        <CardList memesFiltered={memesFiltered} />
-      </div>
-    );
-  }
-}
+  const onChangeSearch = (event) => {
+    console.log("onChangeSearch");
+    const searchFieldString = event.target.value.toLocaleLowerCase();
+    setSearchField(searchFieldString);
+  };
+
+  return (
+    <div className="App">
+      <h1 className="app-title">Memes Rolodex</h1>
+      <SearchBox
+        placeholder={"search memes"}
+        onChangeHandler={onChangeSearch}
+      />
+      <CardList memesFiltered={filteredMemes} />
+    </div>
+  );
+};
 
 export default App;
